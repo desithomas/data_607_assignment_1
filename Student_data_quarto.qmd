@@ -1,0 +1,32 @@
+---
+title: "Academic_performance_of_students"
+author: "Desiree"
+format: html
+editor: visual
+---
+
+## Approach
+
+This dataset was found on Kaggle and contains the academic performance of students with several variables. These variables may or may not be correlated the students probability of success. 
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+#load in the tidyverse
+library(tidyverse)
+
+#variables use <- and not = in R (reminder). This is the RAW link, use quotes because it is a string
+dataset_url <- "https://raw.githubusercontent.com/desithomas/data_607_assignment_1/refs/heads/main/StudentPerformanceFactors.csv"
+
+
+#Load the data. Create a variable and add the dataset_url to the read_csv function
+student_data <- read_csv(dataset_url)
+
+View(student_data)
+```
+
+
