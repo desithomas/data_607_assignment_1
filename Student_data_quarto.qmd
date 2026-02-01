@@ -98,3 +98,6 @@ ggplot(data = final_data, mapping = aes(x = support_levels, y = exam_score, fill
        x = "Support Level")
 ```
 
+## Conclusion
+
+Based on the visualization that was provided, it shows that the more tutoring sessions a student attends, the higher the baseline for their exam score. The boxplots are color coded with a legend based on the number of tutoring sessions they attended.  
