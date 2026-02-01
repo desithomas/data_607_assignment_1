@@ -1,0 +1,100 @@
+---
+title: "Academic Performance of Students Based on Number of Tutoring Sessions"
+author: "Desiree Thomas"
+format: html
+editor: visual
+---
+
+## Approach
+
+This is the first assignment within the DATA 607 course taught by Professor Andrew Catlin at the CUNY School of Professional Studies. This assignment is meant to act as a beachhead. The code written in this assignment is indicative of my inexperience with the R programming language and my first dive into using RStudio.
+
+## Source
+
+This dataset was found on Kaggle. Here is the link: https://www.kaggle.com/datasets/ayeshasiddiqa123/student-perfirmance. This is the link to the page of the dataset overall. You may notice that there is a typo in the url name -- this was done by the uploader and will still lead you to the correct Student Academic Performance Dataset.
+
+For purposes of reproducibility, the RAW URL has been provided via GitHub and is available in the codebase.
+
+## Inspiration for Choosing Dataset
+
+I work for an academic program at one of CUNY's colleges. The primary focus of my work revolves around ensuring that students have the appropriate level of academic support. Due to this, this dataset caught my eye for the initial assignment. However, throughout this course I will be exploring a range of data unrelated to academics.
+
+##Requirements
+
+These packages are required to duplicate the code: tidyverse, dplyr, janitor. Please ensure they are installed on your own machine before you load them.
+
+```{r}
+# load in the tidyverse
+library(tidyverse)
+library(dplyr)
+library(janitor)
+
+## RAW URL is assigned to the object dataset_url
+dataset_url <- "https://raw.githubusercontent.com/desithomas/data_607_assignment_1/refs/heads/main/StudentPerformanceFactors.csv"
+
+
+# dataset_url has been passed into read_csv() function
+student_data <- read_csv(dataset_url)
+
+```
+
+The code chunk below is a demonstration of my ability to use the filter function during data transformation for the beachhead assignment to remove specific observations in the data. In this initial approach, I filtered students who studied for 0 hours and who attended tutoring at least once (greater than 0). However, I later decided to change my approach as I decided that I did not want to eliminate student data of those who did not attend tutoring or those who did not spend any hours studying.
+
+```{r}
+
+student_data_modded <- student_data %>%  
+  clean_names() %>%
+  select(hours_studied, exam_score, tutoring_sessions) %>% 
+  filter(hours_studied > 0, tutoring_sessions > 0)
+
+glimpse(student_data_modded)
+
+```
+ 
+# Approach Change
+
+As mentioned just above, I decided to change my approach to handling this dataset and what I was seeking to explore. With my new approach, I decided to use the variables/columns exam_scores and tutoring_sessions. I created a new variable named support_levels based on the number of tutoring sessions. My goal was to investigate whether there was a potential relationship between the number of tutoring sessions students attended and their exam scores. 
+
+For this, I used the clean_function() package to convert the column names to all lowercase. At first, I was using an if_else() function after fiddling with the ggplot() visuals, I decided to ask Gemini for a suggestion and it suggested case_when() instead. GGplot2's ggplot() function was used to create the visuals via boxplots for this analysis. Originally, when starting off, I used a scatterplot but I did not believe it created a clear and compelling story, along with it being cluttered also due to my naively using 'size =' in the aes() function which further cluttered the visualization.
+
+```{r}
+
+final_data <- student_data %>% 
+  clean_names() %>% 
+  mutate(
+    support_levels = case_when(
+      tutoring_sessions >= 6 ~ "3. High (6+)",  
+      tutoring_sessions >= 2 ~ "2. Mid (2-5)",   
+      TRUE                   ~ "1. Low (0-1)"    
+    )
+  ) %>% 
+  select(exam_score, support_levels, tutoring_sessions) %>% 
+  filter(!is.na(exam_score))
+
+# Now ggplot has ONE column with 3 boxes to draw
+ggplot(data = final_data, mapping = aes(x = support_levels, y = exam_score, fill = support_levels)) + 
+  geom_boxplot() + 
+  labs(title = "Number of Tutoring Sessions (Support Levels) vs. Student Exam Scores",
+       x = "Support Level")
+
+  
+  
+  
+
+glimpse(final_data)
+```
+
+I used this to determine the cutoff number for high support and low support for students. I was unsure of the specific function to find the stats for the dataset, so I asked Gemini and it suggested the summary() and table() functions for my use case.
+
+```{r}
+summary(final_data$tutoring_sessions)
+table(final_data$tutoring_sessions)
+```
+## Visualization
+```{r}
+ggplot(data = final_data, mapping = aes(x = support_levels, y = exam_score, fill = support_levels)) + 
+  geom_boxplot() + 
+  labs(title = "Number of Tutoring Sessions (Support Levels) vs. Student Exam Scores",
+       x = "Support Level")
+```
+
