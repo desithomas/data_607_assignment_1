@@ -50,10 +50,10 @@ student_data_modded <- student_data %>%
 glimpse(student_data_modded)
 
 ```
- 
+
 # Approach Change
 
-As mentioned just above, I decided to change my approach to handling this dataset and what I was seeking to explore. With my new approach, I decided to use the variables/columns exam_scores and tutoring_sessions. I created a new variable named support_levels based on the number of tutoring sessions. My goal was to investigate whether there was a potential relationship between the number of tutoring sessions students attended and their exam scores. 
+As mentioned just above, I decided to change my approach to handling this dataset and what I was seeking to explore. With my new approach, I decided to use the variables/columns exam_scores and tutoring_sessions. I created a new variable named support_levels based on the number of tutoring sessions. My goal was to investigate whether there was a potential relationship between the number of tutoring sessions students attended and their exam scores.
 
 For this, I used the clean_function() package to convert the column names to all lowercase. At first, I was using an if_else() function after fiddling with the ggplot() visuals, I decided to ask Gemini for a suggestion and it suggested case_when() instead. GGplot2's ggplot() function was used to create the visuals via boxplots for this analysis. Originally, when starting off, I used a scatterplot but I did not believe it created a clear and compelling story, along with it being cluttered also due to my naively using 'size =' in the aes() function which further cluttered the visualization.
 
@@ -90,7 +90,9 @@ I used this to determine the cutoff number for high support and low support for 
 summary(final_data$tutoring_sessions)
 table(final_data$tutoring_sessions)
 ```
+
 ## Visualization
+
 ```{r}
 ggplot(data = final_data, mapping = aes(x = support_levels, y = exam_score, fill = support_levels)) + 
   geom_boxplot() + 
@@ -100,4 +102,105 @@ ggplot(data = final_data, mapping = aes(x = support_levels, y = exam_score, fill
 
 ## Conclusion
 
-Based on the visualization that was provided, it shows that the more tutoring sessions a student attends, the higher the baseline for their exam score. The boxplots are color coded with a legend based on the number of tutoring sessions they attended.  
+Based on the visualization that was provided, it shows that the more tutoring sessions a student attends, the higher the baseline for their exam score. The boxplots are color coded with a legend based on the number of tutoring sessions they attended.
+
+## Gemini transcript
+
+(1) I decided to remove the hours studied, so that I can examine exam scores and support level instead for a clearer story. I have attached the screenshot of what my box plot looks like:
+
+This is a fantastic pivot. Switching to a **boxplot** was exactly the right move because you are now comparing a **Category** (Support Level) against a **Number** (Exam Score). A scatterplot would have looked like weird vertical lines, but this boxplot tells a clear statistical story.
+
+Here is the "Honors Level" interpretation of what your graph is actually saying—and it might be surprising.
+
+### The Story Your Data is Telling
+
+If I were grading this, I would look for you to point out these three things in your "Findings" section:
+
+1.  **The "Median" (The thick black lines):** Look closely at the horizontal black line inside the red box vs. the teal box. They are almost identical (maybe Red is *tiny* bit higher).
+
+-   **Interpretation:** On average, students with "High Support" (lots of tutoring) are performing about the same as students with "Low Support." Tutoring isn't a magic wand.
+
+2.  **The "Interquartile Range" (The colored boxes):** The Red box is slightly shorter (more compact) than the Teal box.
+
+-   **Interpretation:** High Support seems to make performance **more consistent**. The Low Support group has a wider range of uncertainty—some do great, some do poorly. The High Support students are more clustered around the middle.
+
+3.  **The "Outliers" (The black dots):** Notice the dots floating above the boxes. Both groups have students scoring 100.
+
+-   **Interpretation:** You can get a perfect score *without* tutoring. High support is not a requirement for high achievement.
+
+### How to Write This for an "A"
+
+A beginner would write: *"The graph shows High Support is better."* (This is technically weak because the difference is so small).
+
+**You (The Data Scientist) should write:**
+
+> "Contrary to the hypothesis that more tutoring guarantees higher grades, the analysis reveals that the median exam scores for 'High Support' and 'Low Support' students are nearly identical. However, the 'High Support' group shows slightly less variance (a more compact box), suggesting that tutoring may help stabilize performance rather than drastically increase the ceiling."
+
+### One Tiny Polish
+
+Your title says "Studying Hours vs. Exam Scores," but you removed studying hours!
+
+-   **Quick Fix:** Update your `labs()` title to: **"Tutoring Support vs. Exam Scores"**.
+
+You have successfully performed **EDA (Exploratory Data Analysis)**—you had a question, you visualized it, and you found a nuanced answer. This is excellent work.
+
+(2)My prompt; I did attach a screenshot of my code for Gemini to process and it resulted in it suggesting the case_when() and summary() & table() functions. I did alter the suggestions that Gemini provided to what I needed and my actual variable names.
+
+Gemini Response: You are asking exactly the right question. You are asking for **Data-Driven Binning**.
+
+Currently, we are just guessing that "2" is the cutoff. But what if the maximum number of sessions is 20? Then calling someone with 2 sessions "High Support" would be silly. Conversely, if the maximum is 3, then 2 *is* High Support.
+
+To make this decision intelligently, you need to see the **Range** (Min and Max) and the **Frequency** (How many students are at each level).
+
+### Step 1: Investigating the Numbers (The "Detective" Phase)
+
+Before you decide your categories, run this code block in your console or a temporary chunk. It will tell you exactly what you are working with.
+
+``` r
+# 1. Find the basic range (Min, Max, Average)
+summary(student_data$tutoring_sessions)
+
+# 2. See exactly how many students are in each bucket
+# This is the most useful command for your question!
+table(student_data$tutoring_sessions)
+```
+
+**What to look for in the output:**
+
+-   **If `table` shows:** `0: 500, 1: 300, 2: 50, 3: 5`
+
+-   *Analysis:* High Support is rare! Maybe "High" should be anything 2 or above.
+
+-   **If `table` shows:** `0: 100, ... 8: 200`
+
+-   *Analysis:* There are people with 8 sessions! In this case, "2" is definitely not "High." You might want to move the cutoff to 4 or 5.
+
+### Step 2: Refining Your Categories
+
+Once you know the Max, you can categorize "High" and "Low" based on the actual data distribution rather than a guess.
+
+If you find the range is wide (e.g., 0 to 8), strictly separating them into just two groups (High/Low) usually hides too much detail. This is where you might want to bring back **`case_when`** to create three tiers, which gives you a "Goldilocks" analysis (Too Little, Just Right, Too Much).
+
+**Here is how you would write that, assuming you find the max is around 8:**
+
+``` r
+mutate(support_level = case_when(
+  tutoring_sessions >= 5 ~ "High Support (5+)",   # The Power Users
+  tutoring_sessions >= 2 ~ "Mid Support (2-4)",   # The Average Users
+  TRUE                   ~ "Low/No Support (0-1)" # The Minimalists
+))
+```
+
+### Recommendation
+
+Run `table(student_data$tutoring_sessions)` right now.
+
+-   **If the max is low (3 or 4):** Stick with your current `if_else` (High vs. Low).
+-   **If the max is high (8+):** You should probably use `case_when` to split it into High/Mid/Low, or simply raise your cutoff number for "High" to be more meaningful.
+
+Do you want to run that `table` command and tell me what the numbers look like? We can pick the perfect cutoffs together.
+
+
+## Citation
+Google Deepmind. (2025). Gemini 3 Pro [Large language model].
+https://gemini.google.com. Accessed January 31st, 2026.
