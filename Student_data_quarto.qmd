@@ -7,7 +7,9 @@ editor: visual
 
 ## Approach
 
-This is the first assignment within the DATA 607 course taught by Professor Andrew Catlin at the CUNY School of Professional Studies. This assignment is meant to act as a beachhead. The code written in this assignment is indicative of my inexperience with the R programming language and my first dive into using RStudio.
+This is the first assignment within the DATA 607 course taught by Professor Andrew Catlin at the CUNY School of Professional Studies. This assignment is meant to act as a beachhead. The code written in this assignment is indicative of my inexperience with the R programming language and my first dive into using RStudio. My goal for this approach is to determine if there is a relationship between the number of hours studied for an exam, how many tutoring sessions the student attended and the exam grade the student received. My intent is to select the columns I am interested in keeping for the analysis and using them to then visualize the data. From there, I will draw conclusions from the data. 
+
+Business case: Though it is unknown which country this student data is related to, education level and student age, institutions of higher education are often interested in this type of student data due to the possibility of it assisting with retention (in programs and at the institution itself), the likelihood of students graduating within the expected timeframe of their grade level, identifying students who need extra support and more. 
 
 ## Source
 
